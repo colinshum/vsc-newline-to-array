@@ -10,34 +10,54 @@ const vscode = require('vscode');
  */
 function activate(context) {
 	let disposable = vscode.commands.registerCommand('convert-newline-list-to-array.convertNewLineToArray', function () {
-		const editor = vscode.window.activeTextEditor;
-		const selection = editor.selection;
-		convertNewLineToArray(editor, selection)
-	});
+		const editor = vscode.window?.activeTextEditor;
+
+        if (editor) {
+			const selection = editor?.selection;
+			// Check if there is a selection
+            if (!selection.isEmpty) {
+
+			convertNewLineToArray(editor, selection);
+						
+            } else {
+				// If there is no selection, show an error message
+                vscode.window.showInformationMessage('Please select some text to convert.');
+            }
+        } else {
+			// If there is no active text editor, show an error message
+            vscode.window.showErrorMessage('No active text editor found for conversion.');
+        }	});
 
 	context.subscriptions.push(disposable);
 }
 
+
 function convertNewLineToArray(editor, selection) {
-	const repl = [];
+    const repl = [];
+    for (let i = selection.start.line; i <= selection.end.line; i++) {
+        const tempLine = editor.document.lineAt(i).text;
 
-	for (let i = selection.start.line; i <= selection.end.line; i++) {
-		const tempLine = editor.document.lineAt(i).text
+        if (tempLine !== '') {
+			// check if checked line is a number
+            const isNumber = !isNaN(parseFloat(tempLine)) && isFinite(tempLine);
+            if (isNumber) {
+                repl.push(tempLine);
+            } else {
+                    repl.push(`"${tempLine}"`); 
+                }
+            
+        } else {
+            repl.push("''");
+        }
+    }
 
-		if (tempLine !== '') {
-			repl.push(tempLine)
-		} else {
-			repl.push("''")
-		}
-	}
+    const strRepl = "[" + repl.join(", ") + "]";
 
-	const strRepl = "[" + repl.toString() + "]";
-
-	editor.edit((e) => {
-		e.replace(selection.active, strRepl.replace(/,/g, ", "));
-		e.delete(selection)
-	});
+    editor.edit((e) => {
+        e.replace(selection, strRepl);
+    });
 }
+
 
 function deactivate() {}
 
