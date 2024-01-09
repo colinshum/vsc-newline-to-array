@@ -2,7 +2,7 @@
   "name": "convert-newline-list-to-array",
   "displayName": "Convert Newline List to Array",
   "description": "Converts lists split by newline to comma-separated array",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "cshum",
   "repository": "https://github.com/colinshum/vsc-newline-to-array",
   "engines": {
